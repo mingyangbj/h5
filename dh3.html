@@ -1,0 +1,79 @@
+<head>
+    <meta charset="UTF-8">
+    <title>动画</title>
+    <style>
+        @keyframes scaleDraw {  /*定义关键帧、scaleDrew是需要绑定到选择器的关键帧名称*/
+            0%{
+                transform: scale(0.1);  /*开始为原始大小*/
+            }
+
+            100%{
+                transform: scale(1);
+            }
+        }
+        .div{
+            margin-left: 5px;
+            -webkit-animation-name: scaleDraw; /*关键帧名称*/
+            -webkit-animation-timing-function: ease-in-out; /*动画的速度曲线*/
+            -webkit-animation-iteration-count: 1;  /*动画播放的次数*/
+            -webkit-animation-duration: 1s; /*动画所花费的时间*/
+        }
+        .div1{
+            text-align:center;
+        }
+
+
+    </style>
+    <script type="text/javascript">
+        imgSrc_list=['http://img.mp.sohu.com/upload/20170619/54e25b6c7d62469ea01bc1000174e526_th.png',
+            'http://img.mp.sohu.com/upload/20170619/f7edea14904f454281b3042a1687d145_th.png',
+            'http://img.mp.sohu.com/upload/20170619/1f4d772a74df4f21950d48bcd5975cd6_th.png',
+            'http://img.mp.sohu.com/upload/20170619/8d972b480b124d66a08fee871d37b00a_th.png',
+            'http://img.mp.sohu.com/upload/20170619/af044678f2844d4da92d608e5850d296_th.png']
+
+        has_show_list=[]
+        //     <!--获取图片list，不停的遍历，然后加入到展示队列中-->
+         window.setInterval(function () {
+
+             imgSrc_list = imgSrc_list.filter( function( el ) {
+                 return has_show_list.indexOf( el ) < 0;
+             } );
+             var myDiv = document.getElementById('tp_list_div'); //获得dom对象
+             myDiv.innerHTML = "";
+             if (imgSrc_list.length<=0)
+                return
+             var bigImg = document.createElement("img");		//创建一个img元素
+             bigImg.src=imgSrc_list[0];   //给img元素的src属性赋值
+             bigImg.width="256";  //320个像素 不用加px
+             bigImg.height="320";  //320个像素 不用加px
+             bigImg.className="div";  //320个像素 不用加px
+             myDiv.appendChild(bigImg);  	//为dom添加子元素img
+             has_show_list.push(imgSrc_list[0])
+             if (imgSrc_list.length<=1)
+                 return
+
+             var bigImg1 = document.createElement("img");		//创建一个img元素
+             bigImg1.src=imgSrc_list[1];   //给img元素的src属性赋值
+             bigImg1.width="256";  //320个像素 不用加px
+             bigImg1.height="320";  //320个像素 不用加px
+
+             bigImg1.className="div";  //320个像素 不用加px
+             has_show_list.push(imgSrc_list[1])
+
+
+
+             myDiv.appendChild(bigImg1);  	//为dom添加子元素img
+         }, 3000);
+
+    </script>
+</head>
+<body>
+
+<!--<div class="div"></div>-->
+<div id="tp_list_div" class="div1">
+<!--<img id='img_1' class="div" src="http://www.w3school.com.cn/i/eg_tulip.jpg" width="200" height="200" />-->
+<!--<img id='img_2' class="div" src="http://www.w3school.com.cn/i/eg_tulip.jpg" width="200" height="200" />-->
+</div>
+
+</body>
+
