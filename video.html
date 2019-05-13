@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>WebSocket Test</title>
+<meta charset="UTF-8">
+<title>动画</title>
+<style>
+    @keyframes scaleDraw {  /*定义关键帧、scaleDrew是需要绑定到选择器的关键帧名称*/
+        0%{
+            transform: scale(0.1);  /*开始为原始大小*/
+        }
+
+        100%{
+            transform: scale(1);
+        }
+    }
+    .div{
+        margin-left: 5px;
+        -webkit-animation-name: scaleDraw; /*关键帧名称*/
+        -webkit-animation-timing-function: ease-in-out; /*动画的速度曲线*/
+        -webkit-animation-iteration-count: 1;  /*动画播放的次数*/
+        -webkit-animation-duration: 1.5s; /*动画所花费的时间*/
+    }
+    .div1{
+        text-align:center;
+    }
+
+
+</style>
+<script type="text/javascript">
+    //主机地址
+    var wsUrl = "ws://192.168.0.175:9000/video";
+    //视频流地址
+    var rtspUrl = "rtsp://admin:admin@192.168.0.150/live1.sdp";
+    //websocket连接
+    var ws = wsUrl + "?url=" + encodeURIComponent(rtspUrl);
+
+    var output;
+    //初始化操作
+    function init() {
+        output = document.getElementById("output");
+        testWebSocket();
+    }
+
+    function testWebSocket() {
+        websocket = new WebSocket(ws);
+        websocket.onopen = function(evt) {
+            onOpen(evt)
+        };
+        websocket.onclose = function(evt) {
+            onClose(evt)
+        };
+        websocket.onmessage = function(evt) {
+            onMessage(evt)
+        };
+        websocket.onerror = function(evt) {
+            onError(evt)
+        };
+    }
+
+    function onOpen(evt) {
+        console.log('onOpen')
+//        writeToScreen("CONNECTED");
+    }
+
+    function onClose(evt) {
+        console.log('onClose')
+//        writeToScreen("DISCONNECTED");
+    }
+
+    imgSrc_list=[]
+    has_show_list=[]
+    timeoutID=1
+    //收到消息
+    function onMessage(evt) {
+        try {
+            console.log(evt.data)
+            var obj = eval('(' + evt.data + ')');
+            console.log(obj.type)
+            if (obj.type=='recognized'){
+                console.log(obj.person)
+                console.log(obj.person.name)
+                console.log(obj.person.title)
+                console.log(obj.person.department)
+                image_path='http://192.168.0.175'+obj.person.avatar
+                imgSrc_list.push(image_path)
+
+                var myDiv = document.getElementById('tp_list_div'); //获得dom对象
+                myDiv.innerHTML = "";
+                var bigImg = document.createElement("img");		//创建一个img元素
+                bigImg.src=image_path;   //给img元素的src属性赋值
+                bigImg.width="256";  //320个像素 不用加px
+                bigImg.height="320";  //320个像素 不用加px
+                bigImg.className="div";  //320个像素 不用加px
+                myDiv.appendChild(bigImg);  	//为dom添加子元素img
+
+                clearTimeout(timeoutID)
+                timeoutID=setTimeout(function () {
+                    myDiv.innerHTML = "";
+                }, 5000 )
+            }
+
+        }
+        catch (e) {
+            // statements to handle any exceptions
+//            console.log(e)
+        }
+
+    }
+
+    function onError(evt) {
+        console.log('onError')
+//        writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+    }
+
+    function doSend(message) {
+        console.log('doSend')
+//        writeToScreen("SENT: " + message);
+//        websocket.send(message);
+    }
+
+    //输出识别结果到屏幕
+    function writeToScreen(message) {
+        var result = document.getElementById("test");
+        var pre = document.createElement("p");
+        pre.style.wordWrap = "break-word";
+        pre.innerHTML = message;
+        output.appendChild(pre);
+    }
+
+    window.addEventListener("load", init, false);
+</script>
+
+<body>
+
+<!--<div class="div"></div>-->
+<div id="tp_list_div" class="div1">
+    <!--<img id='img_1' class="div" src="http://www.w3school.com.cn/i/eg_tulip.jpg" width="200" height="200" />-->
+    <!--<img id='img_2' class="div" src="http://www.w3school.com.cn/i/eg_tulip.jpg" width="200" height="200" />-->
+</div>
+
+</body>
