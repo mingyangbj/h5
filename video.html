@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <title>动画</title>
 <style>
+    .box{
+        display: -webkit-flex; /* Safari */
+        display: flex;
+        justify-content: center;
+    }
     @keyframes scaleDraw {  /*定义关键帧、scaleDrew是需要绑定到选择器的关键帧名称*/
         0%{
             transform: scale(0.1);  /*开始为原始大小*/
@@ -20,13 +25,145 @@
         -webkit-animation-iteration-count: 1;  /*动画播放的次数*/
         -webkit-animation-duration: 1.5s; /*动画所花费的时间*/
     }
-    .div1{
-        text-align:center;
+    .img_box{
+        justify-content: center;
+        flex-direction:column;
+
+    }
+    .mengban{
+        margin-top: -300px;
+    }
+    .icon_b_bg{
+        margin-left: 4px;
+    }
+    .div_bottom{
+        display: flex;
+        margin-top: -80px;
+        flex-direction:row;
+        justify-content: center |  left;
+    }
+    .icon_title{
+        margin-left: -43px;
+        width: 30px;
+        margin-top: 15px;
+        height: 30px;
     }
 
+    .icon_title_yuan{
+        margin-left: 20px;
+        display: flex;
+        justify-content: center
+    }
+    .name{
+        margin-left: 10px;
+        margin-top: 10px;
+        color: white;
+        font-size: 20px;
+    }
+    .room{
+        margin-left: 10px;
+        color: white;
+        font-size: 10px;
+    }
+    .name_room{
+        margin-left: 10px;
+        display: flex;
+        flex-direction:column;
+    }
+    .img_up{
+        display: flex;
+        justify-content: center;
+        height:300px;
+        width: 300px;
+        align-items: center;
+
+    }
+    .img_up_mb{
+        display: flex;
+        justify-content: center;
+        height:300px;
+        width: 300px;
+        margin-top: -300px;
+        align-items: center;
+
+    }
+    .img_icon{
+        display: flex;
+        justify-content: center
+    }
 
 </style>
+<template id="dialog_tpl">
+    <div class="img_box" width="300px" height="400px" >
+        <div class="img_up">
+            <img id='img_1'  class="img_icon"  src="" width="160px" height="160px" />
+        </div>
+        <div class="img_up_mb" >
+            <img id='mengban' src="img/icon_mengban.png" width="300px" height="300px" />
+        </div>
+        <div>
+            <img id='icon_b_bg' class="icon_b_bg" src="img/icon_bottom.png" width="290px" height="90px" />
+        </div>
+        <div class="div_bottom">
+            <img id='icon_title_yuan' class="icon_title_yuan" src="img/tuoyuan.png" width="60px" height="60px" />
+            <img id='icon_title' class="icon_title" src="img/jiashu.png" width="60px" height="60px" />
+            <div class="name_room">
+                <div  class="name">这是一个段落。</div>
+                <div  class="room">这是一个段落。</div>
+            </div>
+        </div>
+    </div>
+</template>
+
 <script type="text/javascript">
+    /**
+     *post请求
+     *
+     */
+    function post(url,data,success){
+        var xmlhttp = null;
+        if(window.XMLHttpRequest){
+            xmlhttp = new XMLHttpRequest();
+        }
+        xmlhttp.open("POST",url,true);
+        xmlhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");//www-form-urlencoded
+        xmlhttp.timeout = 4000;
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4) {
+                if (xmlhttp.status == 504 ) {
+                    console.log("服务器请求超时..");
+                    error();
+                    xmlhttp.abort();
+                }else if(xmlhttp.status == 200){
+                    success(xmlhttp.responseText);
+                }
+                xmlhttp = null;
+            }
+        }
+        xmlhttp.ontimeout = function () {
+            console.log("客户端请求超时..");
+            error();
+        }
+        xmlhttp.send(data);//JSON.stringify({name:"小三"})
+        /**
+         *访问超时后处理
+         */
+        function error(){
+            var body = document.querySelector("body");
+            body.innerHTML = "";
+            var errorHTML = document.createElement("div");
+            errorHTML.innerHTML = "连接超时";
+            body.appendChild(errorHTML);
+            var refreshHtml = document.createElement("div");
+            refreshHtml.innerHTML='刷新';
+            refreshHtml.id="fresh";
+            body.appendChild(refreshHtml);
+            refreshHtml.addEventListener('click', function (e) {
+                window.location.reload()
+            }, false);
+        }
+    }
+
     //主机地址
     var wsUrl = "ws://192.168.0.175:9000/video";
     //视频流地址
@@ -59,6 +196,9 @@
 
     function onOpen(evt) {
         console.log('onOpen')
+
+
+
 //        writeToScreen("CONNECTED");
     }
 
@@ -86,23 +226,25 @@
 
                 var myDiv = document.getElementById('tp_list_div'); //获得dom对象
                 myDiv.innerHTML = "";
-                var bigImg = document.createElement("img");		//创建一个img元素
-                bigImg.src=image_path;   //给img元素的src属性赋值
-                bigImg.width="256";  //320个像素 不用加px
-                bigImg.height="320";  //320个像素 不用加px
-                bigImg.className="div";  //320个像素 不用加px
-                myDiv.appendChild(bigImg);  	//为dom添加子元素img
 
-                clearTimeout(timeoutID)
-                timeoutID=setTimeout(function () {
-                    myDiv.innerHTML = "";
-                }, 5000 )
+                var dialog = document.querySelector('#dialog_tpl');
+                dialog.content.querySelector('#img_1').src = image_path;
+                dialog.content.querySelector('.name').innerHTML = obj.person.name;
+                dialog.content.querySelector('.room').innerHTML = obj.person.department+'房  '+obj.person.title;
+                myDiv.appendChild(dialog.content.cloneNode(true));
+
+                url='http://192.168.0.172:8881/api/face/addRecord'
+                data="subjectId="+obj.data.subject_id+"&screenId="+obj.screen.id+'&koalaId=1'
+//                Integer subjectId, Integer screenId, String koalaId(传1，固定)
+                post(url,data,function (msg) {
+                    console.log(msg)
+                })
             }
 
         }
         catch (e) {
             // statements to handle any exceptions
-//            console.log(e)
+            console.log(e)
         }
 
     }
@@ -133,9 +275,8 @@
 <body>
 
 <!--<div class="div"></div>-->
-<div id="tp_list_div" class="div1">
-    <!--<img id='img_1' class="div" src="http://www.w3school.com.cn/i/eg_tulip.jpg" width="200" height="200" />-->
-    <!--<img id='img_2' class="div" src="http://www.w3school.com.cn/i/eg_tulip.jpg" width="200" height="200" />-->
+<div id="tp_list_div" class="box">
+
 </div>
 
 </body>
