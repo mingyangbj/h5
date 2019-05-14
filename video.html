@@ -233,6 +233,11 @@
                 dialog.content.querySelector('.room').innerHTML = obj.person.department+'房  '+obj.person.title;
                 myDiv.appendChild(dialog.content.cloneNode(true));
 
+                clearTimeout(timeoutID)
+                timeoutID=setTimeout(function () {
+                    myDiv.innerHTML = "";
+                }, 5000 )
+
                 url='http://192.168.0.172:8881/api/face/addRecord'
                 data="subjectId="+obj.data.subject_id+"&screenId="+obj.screen.id+'&koalaId=1'
 //                Integer subjectId, Integer screenId, String koalaId(传1，固定)
